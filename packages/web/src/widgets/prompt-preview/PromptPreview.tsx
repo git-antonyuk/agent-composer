@@ -10,14 +10,14 @@ import {
 } from '@features/prompt-generation/lib/generatePrompt';
 
 export function PromptPreview() {
-  const { getSelectedAgents } = useAgentStore();
+  const { getSelectedAgents, userPrompt } = useAgentStore();
   const selectedAgents = getSelectedAgents();
 
   const [copied, setCopied] = useState(false);
 
   const prompt = useMemo(() => {
-    return generatePrompt({ agents: selectedAgents });
-  }, [selectedAgents]);
+    return generatePrompt({ agents: selectedAgents, userPrompt });
+  }, [selectedAgents, userPrompt]);
 
   const totalTokens = useMemo(() => {
     return estimateTotalTokens(selectedAgents);
@@ -54,7 +54,7 @@ export function PromptPreview() {
                 variant="outline"
                 size="sm"
                 onClick={handleCopy}
-                disabled={selectedAgents.length === 0}
+                disabled={!userPrompt || selectedAgents.length === 0}
               >
                 {copied ? (
                   <>
@@ -72,7 +72,7 @@ export function PromptPreview() {
                 variant="outline"
                 size="sm"
                 onClick={handleDownload}
-                disabled={selectedAgents.length === 0}
+                disabled={!userPrompt || selectedAgents.length === 0}
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download
@@ -82,22 +82,9 @@ export function PromptPreview() {
         </CardHeader>
 
         <CardContent className="flex-1 p-0">
-          {selectedAgents.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-center p-8">
-              <div>
-                <p className="text-muted-foreground">
-                  No agents selected
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Select agents from the library to generate a prompt
-                </p>
-              </div>
-            </div>
-          ) : (
-            <pre className="text-sm p-6 overflow-auto h-full whitespace-pre-wrap font-mono">
-              {prompt}
-            </pre>
-          )}
+          <pre className="text-sm p-6 overflow-auto h-full whitespace-pre-wrap font-mono">
+            {prompt}
+          </pre>
         </CardContent>
       </Card>
     </div>

@@ -2,17 +2,26 @@ import type { Agent } from '@shared/types/agent';
 
 export interface GeneratePromptOptions {
   agents: Agent[];
+  userPrompt: string;
   format?: 'mega-prompt' | 'markdown';
 }
 
 /**
- * Generate a mega-prompt from selected agents
+ * Generate a prompt with agent file paths
  */
 export function generatePrompt(options: GeneratePromptOptions): string {
-  const { agents } = options;
+  const { agents, userPrompt } = options;
+
+  if (!userPrompt && agents.length === 0) {
+    return '# No task or agents selected\n\nPlease:\n1. Enter your task in the prompt field\n2. Select agents to help with the task';
+  }
+
+  if (!userPrompt) {
+    return '# No task specified\n\nPlease enter your task in the prompt field above.';
+  }
 
   if (agents.length === 0) {
-    return '# No agents selected\n\nPlease select at least one agent to generate a prompt.';
+    return `# Task\n\n${userPrompt}\n\n---\n\n**Note:** No agents selected. Select agents from the library to assist with this task.`;
   }
 
   // Sort agents: core first, then by category
@@ -24,46 +33,54 @@ export function generatePrompt(options: GeneratePromptOptions): string {
 
   const lines: string[] = [];
 
-  // Header
-  lines.push('# Agent Instructions');
+  // User's task
+  lines.push('# Task');
   lines.push('');
-  lines.push(`Generated with ${agents.length} agent(s)`);
+  lines.push(userPrompt);
   lines.push('');
   lines.push('---');
   lines.push('');
 
-  // Agent sections
+  // Agent instructions
+  lines.push('# Agent Instructions');
+  lines.push('');
+  lines.push(`Use the following ${agents.length} agent instruction file(s) to complete the task above:`);
+  lines.push('');
+
+  // Group by category
+  const byCategory: Record<string, Agent[]> = {};
   for (const agent of sortedAgents) {
-    lines.push(`## ${agent.name}`);
-    lines.push('');
-
-    // Metadata
-    const metadata: string[] = [];
-    if (agent.category) metadata.push(`Category: ${agent.category}`);
-    if (agent.priority) metadata.push(`Priority: ${agent.priority}`);
-    if (agent.tags && agent.tags.length > 0) {
-      metadata.push(`Tags: ${agent.tags.join(', ')}`);
-    }
-    metadata.push(`Path: ${agent.filePath}`);
-
-    if (metadata.length > 0) {
-      lines.push('**Metadata:**');
-      metadata.forEach((m) => lines.push(`- ${m}`));
-      lines.push('');
-    }
-
-    // Content (remove frontmatter if present)
-    const content = agent.content.replace(/^---[\s\S]*?---\n/, '');
-    lines.push(content.trim());
-    lines.push('');
-    lines.push('---');
-    lines.push('');
+    const cat = agent.category || 'general';
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(agent);
   }
 
-  // Footer
-  lines.push('# Your Task');
+  const categories = Object.keys(byCategory).sort((a, b) => {
+    if (a === 'core') return -1;
+    if (b === 'core') return 1;
+    return a.localeCompare(b);
+  });
+
+  for (const category of categories) {
+    lines.push(`## ${category.charAt(0).toUpperCase() + category.slice(1)}`);
+    lines.push('');
+
+    for (const agent of byCategory[category]) {
+      lines.push(`- **${agent.name}**`);
+      lines.push(`  - Path: \`${agent.filePath}\``);
+      if (agent.description) {
+        lines.push(`  - ${agent.description}`);
+      }
+      if (agent.tags && agent.tags.length > 0) {
+        lines.push(`  - Tags: ${agent.tags.join(', ')}`);
+      }
+      lines.push('');
+    }
+  }
+
+  lines.push('---');
   lines.push('');
-  lines.push('[Describe your task here]');
+  lines.push('**Instructions:** Read each agent file listed above and follow their instructions to complete the task.');
   lines.push('');
 
   return lines.join('\n');

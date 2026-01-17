@@ -10,6 +10,9 @@ interface AgentStore {
   // Selected agent IDs
   selectedIds: Set<string>;
 
+  // User's task/prompt
+  userPrompt: string;
+
   // Search and filter state
   searchQuery: string;
   categoryFilter: string | null;
@@ -22,6 +25,7 @@ interface AgentStore {
   toggleAgent: (agentId: string) => void;
   selectAll: () => void;
   deselectAll: () => void;
+  setUserPrompt: (prompt: string) => void;
   setSearchQuery: (query: string) => void;
   setCategoryFilter: (category: string | null) => void;
   setViewMode: (mode: ViewMode) => void;
@@ -34,11 +38,14 @@ interface AgentStore {
 export const useAgentStore = create<AgentStore>((set, get) => ({
   agents: [],
   selectedIds: new Set(),
+  userPrompt: '',
   searchQuery: '',
   categoryFilter: null,
   viewMode: 'list',
 
   setAgents: (agents) => set({ agents }),
+
+  setUserPrompt: (prompt) => set({ userPrompt: prompt }),
 
   toggleAgent: (agentId) =>
     set((state) => {

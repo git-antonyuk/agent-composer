@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LayoutList, Network } from 'lucide-react';
 import { useAgentStore } from './store/agents';
+import { PromptInput } from '@widgets/prompt-input/PromptInput';
 import { AgentList } from '@widgets/agent-list/AgentList';
 import { AgentCanvas } from '@widgets/agent-canvas/AgentCanvas';
 import { PromptPreview } from '@widgets/prompt-preview/PromptPreview';
@@ -85,7 +86,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden flex flex-col">
         {agents.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center p-8">
             <div>
@@ -101,17 +102,23 @@ function App() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 h-full">
-            {/* Left Panel: Agent List or Canvas */}
-            <div className="border-r border-border overflow-hidden">
-              {viewMode === 'list' ? <AgentList /> : <AgentCanvas />}
-            </div>
+          <>
+            {/* Prompt Input */}
+            <PromptInput />
 
-            {/* Right Panel: Prompt Preview */}
-            <div className="overflow-hidden p-6">
-              <PromptPreview />
+            {/* Agent Selection & Preview */}
+            <div className="flex-1 overflow-hidden grid grid-cols-2">
+              {/* Left Panel: Agent List or Canvas */}
+              <div className="border-r border-border overflow-hidden">
+                {viewMode === 'list' ? <AgentList /> : <AgentCanvas />}
+              </div>
+
+              {/* Right Panel: Prompt Preview */}
+              <div className="overflow-hidden p-6">
+                <PromptPreview />
+              </div>
             </div>
-          </div>
+          </>
         )}
       </main>
     </div>
