@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
+import { LayoutList, Network } from 'lucide-react';
 import { useAgentStore } from './store/agents';
 import { AgentList } from '@widgets/agent-list/AgentList';
+import { AgentCanvas } from '@widgets/agent-canvas/AgentCanvas';
 import { PromptPreview } from '@widgets/prompt-preview/PromptPreview';
+import { HelpModal } from '@widgets/help-modal/HelpModal';
+import { Button } from '@shared/ui';
+import { useKeyboardShortcuts } from '@shared/lib/useKeyboardShortcuts';
 
 function App() {
-  const { setAgents, agents } = useAgentStore();
+  const { setAgents, agents, viewMode, setViewMode, selectAll, deselectAll } = useAgentStore();
   const [projectPath, setProjectPath] = useState<string>('');
 
   useEffect(() => {
@@ -16,15 +21,66 @@ function App() {
     setProjectPath(loadedPath);
   }, [setAgents]);
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'k',
+      ctrl: true,
+      callback: () => setViewMode(viewMode === 'list' ? 'canvas' : 'list'),
+      description: 'Toggle view mode',
+    },
+    {
+      key: 'a',
+      ctrl: true,
+      shift: true,
+      callback: selectAll,
+      description: 'Select all agents',
+    },
+    {
+      key: 'e',
+      ctrl: true,
+      shift: true,
+      callback: deselectAll,
+      description: 'Deselect all',
+    },
+  ]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
       <header className="border-b border-border">
-        <div className="px-6 py-4">
-          <h1 className="text-2xl font-bold">Agent Composer</h1>
-          <p className="text-sm text-muted-foreground">
-            Project: {projectPath}
-          </p>
+        <div className="px-6 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Agent Composer</h1>
+            <p className="text-sm text-muted-foreground">
+              Project: {projectPath}
+            </p>
+          </div>
+
+          {/* View Mode Toggle & Help */}
+          <div className="flex gap-2">
+            {agents.length > 0 && (
+              <>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <LayoutList className="h-4 w-4 mr-2" />
+                  List
+                </Button>
+                <Button
+                  variant={viewMode === 'canvas' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('canvas')}
+                >
+                  <Network className="h-4 w-4 mr-2" />
+                  Canvas
+                </Button>
+              </>
+            )}
+            <HelpModal />
+          </div>
         </div>
       </header>
 
@@ -46,9 +102,9 @@ function App() {
           </div>
         ) : (
           <div className="grid grid-cols-2 h-full">
-            {/* Left Panel: Agent List */}
+            {/* Left Panel: Agent List or Canvas */}
             <div className="border-r border-border overflow-hidden">
-              <AgentList />
+              {viewMode === 'list' ? <AgentList /> : <AgentCanvas />}
             </div>
 
             {/* Right Panel: Prompt Preview */}

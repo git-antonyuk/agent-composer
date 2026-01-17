@@ -2,6 +2,19 @@
 
 A visual tool for composing Claude Code agent workflows. Discover agent instruction files in your project, compose them visually, and generate optimized prompts.
 
+## Features
+
+- **Automatic Agent Discovery** - Scans your project for CLAUDE.md, AGENTS.md, agents/*.md, and skills/*.md files
+- **Dual View Modes** - Switch between List view and Visual Canvas view
+- **Smart Search & Filtering** - Search across names, descriptions, tags, and filter by category
+- **Real-time Prompt Generation** - See your mega-prompt update as you select agents
+- **Token Estimation** - Track estimated token usage for your prompts
+- **Copy & Download** - Copy to clipboard or download as markdown file
+- **Keyboard Shortcuts** - Fast navigation with Ctrl+K, Ctrl+Shift+A, and more
+- **Visual Canvas** - Organize agents spatially with ReactFlow
+- **Feature-Sliced Design** - Clean, maintainable codebase architecture
+- **Zero Configuration** - Just run the CLI and start composing
+
 ## Architecture
 
 **Hybrid CLI + Web UI**
@@ -100,8 +113,19 @@ bun run cli scan --help
   - [x] Copy to clipboard
   - [x] Download as markdown
   - [x] Zustand state management
-- [ ] Phase 4: Visual Canvas UI
-- [ ] Phase 5: Polish
+- [x] Phase 4: Visual Canvas UI (Complete)
+  - [x] ReactFlow integration
+  - [x] Agent nodes with visual styling
+  - [x] Drag and drop positioning
+  - [x] View mode toggle (List/Canvas)
+  - [x] Selection sync with prompt generation
+  - [x] Minimap and controls
+- [x] Phase 5: Polish (Complete)
+  - [x] Keyboard shortcuts (Ctrl+K, Ctrl+Shift+A, etc.)
+  - [x] Help modal with shortcuts documentation
+  - [x] Empty states with helpful messages
+  - [x] Error handling
+  - [x] Responsive design
 
 ## Tech Stack
 

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Agent } from '@shared/types/agent';
 
+export type ViewMode = 'list' | 'canvas';
+
 interface AgentStore {
   // All agents loaded from CLI
   agents: Agent[];
@@ -12,6 +14,9 @@ interface AgentStore {
   searchQuery: string;
   categoryFilter: string | null;
 
+  // View mode
+  viewMode: ViewMode;
+
   // Actions
   setAgents: (agents: Agent[]) => void;
   toggleAgent: (agentId: string) => void;
@@ -19,6 +24,7 @@ interface AgentStore {
   deselectAll: () => void;
   setSearchQuery: (query: string) => void;
   setCategoryFilter: (category: string | null) => void;
+  setViewMode: (mode: ViewMode) => void;
 
   // Computed
   getSelectedAgents: () => Agent[];
@@ -30,6 +36,7 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   selectedIds: new Set(),
   searchQuery: '',
   categoryFilter: null,
+  viewMode: 'list',
 
   setAgents: (agents) => set({ agents }),
 
@@ -57,6 +64,8 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   setSearchQuery: (query) => set({ searchQuery: query }),
 
   setCategoryFilter: (category) => set({ categoryFilter: category }),
+
+  setViewMode: (mode) => set({ viewMode: mode }),
 
   getSelectedAgents: () => {
     const { agents, selectedIds } = get();
