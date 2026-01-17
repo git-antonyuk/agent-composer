@@ -1,0 +1,105 @@
+import { useState, useMemo } from 'react';
+import { Copy, Download, Check } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardContent } from '@shared/ui';
+import { useAgentStore } from '@app/store/agents';
+import {
+  generatePrompt,
+  estimateTotalTokens,
+  copyToClipboard,
+  downloadAsFile,
+} from '@features/prompt-generation/lib/generatePrompt';
+
+export function PromptPreview() {
+  const { getSelectedAgents } = useAgentStore();
+  const selectedAgents = getSelectedAgents();
+
+  const [copied, setCopied] = useState(false);
+
+  const prompt = useMemo(() => {
+    return generatePrompt({ agents: selectedAgents });
+  }, [selectedAgents]);
+
+  const totalTokens = useMemo(() => {
+    return estimateTotalTokens(selectedAgents);
+  }, [selectedAgents]);
+
+  const handleCopy = async () => {
+    const success = await copyToClipboard(prompt);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDownload = () => {
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `agent-prompt-${timestamp}.md`;
+    downloadAsFile(prompt, filename);
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <Card className="flex-1 flex flex-col">
+        <CardHeader className="border-b border-border">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Generated Prompt</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedAgents.length} agent(s) selected • ~
+                {totalTokens.toLocaleString()} tokens
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                disabled={selectedAgents.length === 0}
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownload}
+                disabled={selectedAgents.length === 0}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex-1 p-0">
+          {selectedAgents.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-center p-8">
+              <div>
+                <p className="text-muted-foreground">
+                  No agents selected
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Select agents from the library to generate a prompt
+                </p>
+              </div>
+            </div>
+          ) : (
+            <pre className="text-sm p-6 overflow-auto h-full whitespace-pre-wrap font-mono">
+              {prompt}
+            </pre>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

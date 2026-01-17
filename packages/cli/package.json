@@ -1,0 +1,23 @@
+{
+  "name": "@agent-composer/cli",
+  "version": "0.1.0",
+  "description": "CLI tool for scanning and serving agent composer UI",
+  "type": "module",
+  "bin": {
+    "agent-composer": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "bun run src/cli.ts",
+    "build": "bun build src/cli.ts --outdir dist --target bun --minify",
+    "start": "bun run dist/cli.js"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "gray-matter": "^4.0.3",
+    "chokidar": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.0"
+  }
+}

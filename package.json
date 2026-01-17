@@ -1,0 +1,24 @@
+{
+  "name": "agent-composer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visual tool for composing Claude Code agent workflows",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:cli": "cd packages/cli && bun run dev",
+    "dev:web": "cd packages/web && bun run dev",
+    "build:cli": "cd packages/cli && bun run build",
+    "build:web": "cd packages/web && bun run build",
+    "build": "bun run build:web && bun run build:cli",
+    "cli": "bun run packages/cli/src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
